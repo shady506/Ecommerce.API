@@ -212,9 +212,10 @@ namespace Ecommerce.API.Areas.Identity.Controllers
             });
             await _userOTP.CommitAsync();
 
-            return Ok(new 
+            return Ok(new
             {
-                msg = "Send OTP Number to Your Email successfully"
+                msg = "Send OTP Number to Your Email successfully",
+                userId = user.Id
             });
 
         }
@@ -279,7 +280,7 @@ namespace Ecommerce.API.Areas.Identity.Controllers
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             await _userManager.ResetPasswordAsync(user, token, newPasswordDTO.Password);
 
-            return BadRequest(new
+            return Ok(new
             {
                 msg = "Change Password Successfully!"
             });
