@@ -14,11 +14,24 @@ namespace Ecommerce.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                                  });
+            });
+
             // Add services to the container.
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            //builder.Services.AddOpenApi();
+
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<ApplicationDbContext>(option =>
             {
@@ -60,14 +73,21 @@ namespace Ecommerce.API
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             var app = builder.Build();
 
+            app.UseStaticFiles();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
-                app.MapScalarApiReference();
-                app.MapOpenApi();
+                //app.MapScalarApiReference();
+                //app.MapOpenApi();
+
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthentication();
             app.UseAuthorization();

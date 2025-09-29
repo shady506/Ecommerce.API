@@ -19,11 +19,14 @@
 	</PackageReference>
 	  
 	<PackageReference Include="Stripe.net" Version="48.5.0" />
+	  
+	<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Areas\Chat\Controllers\" />
     <Folder Include="Areas\Customer\Controllers\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

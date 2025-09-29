@@ -18,9 +18,10 @@ namespace  Ecommerce.API.Repositories
         }
 
         // CRUD
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await _db.AddAsync(entity);
+            return entity;
         }
 
         public void Update(T entity)

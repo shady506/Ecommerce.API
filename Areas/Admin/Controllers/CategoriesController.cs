@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecommerce.API.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Route("api/[controller]")]
+    [Route("api/[area]/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
