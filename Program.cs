@@ -1,10 +1,14 @@
 
 using Ecommerce.API.Utility.DBInitializer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Stripe;
+using System.Text;
 
 namespace Ecommerce.API
 {
@@ -53,7 +57,30 @@ namespace Ecommerce.API
                 options.AccessDeniedPath = "/Customer/Home/NotFoundPage";
             });
 
+
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options => 
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:audience"],
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:issuer"],
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:key"] ?? " "))
+                };
+            });
+            
+            
             builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
             builder.Services.AddScoped<IRepository<Brand>, Repository<Brand>>();
@@ -63,6 +90,8 @@ namespace Ecommerce.API
             builder.Services.AddScoped<IDBInitializer, DBInitializer>();
             builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
+            builder.Services.AddScoped<IRepository<Order>, Repository<Order>>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
             //builder.Services.AddSession(option =>
             //{

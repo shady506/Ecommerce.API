@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Ecommerce.API.Areas.Identity.Controllers
 {
@@ -10,12 +14,14 @@ namespace Ecommerce.API.Areas.Identity.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration config;
         private readonly IEmailSender _emailSender;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IRepository<UserOTP> _userOTP;
-        public AccountsController(UserManager<ApplicationUser> userManager, IEmailSender emailSender, SignInManager<ApplicationUser> signInManager, IRepository<UserOTP> userOTP)
+        public AccountsController(UserManager<ApplicationUser> userManager,IConfiguration config ,IEmailSender emailSender, SignInManager<ApplicationUser> signInManager, IRepository<UserOTP> userOTP)
         {
             _userManager = userManager;
+            this.config = config;
             _emailSender = emailSender;
             _signInManager = signInManager;
             _userOTP = userOTP;
@@ -119,9 +125,36 @@ namespace Ecommerce.API.Areas.Identity.Controllers
                 });
             }
 
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var Claims = new List<Claim>() 
+            {
+                new Claim(ClaimTypes.NameIdentifier,user.Id),
+                new Claim(ClaimTypes.Name,user.UserName),
+                new Claim(ClaimTypes.Email,user.Email)
+
+            };
+
+            foreach (var item in roles)
+            {
+
+                Claims.Add(new Claim(ClaimTypes.Role, item));
+            }
+
+            SymmetricSecurityKey Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:key"]??" "));
+            SigningCredentials signingCredentials = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                issuer: config["JWT:issuer"],
+                audience: config["JWT:audience"],
+                claims: Claims,
+                expires:DateTime.UtcNow.AddMinutes(50),
+                signingCredentials: signingCredentials
+                );
+
+
             return Ok(new
             {
-                msg = "Login successfully"
+                token = new JwtSecurityTokenHandler().WriteToken(token)
             });
         }
 

@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,7 @@ namespace Ecommerce.API.Areas.Admin.Controllers
         {
             _brandRepository = brandRepository;
         }
-
+        [Authorize]
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {

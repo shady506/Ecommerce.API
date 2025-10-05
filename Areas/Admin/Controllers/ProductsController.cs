@@ -88,6 +88,7 @@ namespace Ecommerce.API.Areas.Admin.Controllers
             if (productInDB is null)
                 return BadRequest();
             var product = productUpdateRequest.Adapt<Product>();
+            product.Id = id;
 
 
             if (productUpdateRequest.MainImg is not null && productUpdateRequest.MainImg.Length > 0)
